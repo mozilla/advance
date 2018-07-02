@@ -103,8 +103,8 @@ API:
 `log`
 
 End of visit payload:
-`
-{
+ 
+ `{
   "userActivity": {
     "deviceTimeUnixMicros": "1527959704808000",
     "deviceDurationMicros": "18320000",
@@ -118,13 +118,10 @@ End of visit payload:
   "clientInfo": {
     "os_type": "extension",
   },
-}
-
-`
+}`
 
 Start of visit payload:
-`
-{
+`{
   "userID": "56422",
   "userActivity": {
     "deviceTimeUnixMicros": "1527959686488000",
@@ -138,9 +135,7 @@ Start of visit payload:
   "clientInfo": {
     "os_type": "extension",
   },
-}
-
-`
+}`
 
 ### read next feed request
 To render the “read next” section of content related to your current page, an additional “related” api call is made:
@@ -149,9 +144,8 @@ API:
 `related`
 
 Payload:
-`
-{"search_like": {"vibe": [{"target": {"target": "u:https://www.theguardian.com/news/2018/may/29/the-financial-scandal-no-one-is-talking-about-big-four-accountancy-firms"}}]}}
-`
+
+`{"search_like": {"vibe": [{"target": {"target": "u:https://www.theguardian.com/news/2018/may/29/the-financial-scandal-no-one-is-talking-about-big-four-accountancy-firms"}}]}}`
 
 # Other
 
@@ -163,8 +157,7 @@ API:
 `log`
 
 Payload:
-`
-{
+`{
   "userActivity": {
     "deviceTimeUnixMicros": "1527703017585000",
     "openView": {
@@ -175,17 +168,12 @@ Payload:
     "os_type": "extension",
     "product_enum": "TrendsAndFriends"
   },
-}
-
-`
+}`
 
 ### Other views
-`
-   "openView": {
+`   "openView": {
       "name": "/toolbar"
-    }
-
-`
+    }`
 
 ## Example Feedback on result
 In the app the user can give feedback on a result, this talks to our log api -- for example here is a log for an off-topic/spam selection in a related feed.
@@ -194,6 +182,7 @@ API:
 `log`
 
 Payload:
+
 `{
   "userActivity": {
     "deviceTimeUnixMicros": "1527701620286000",
@@ -206,8 +195,7 @@ Payload:
       }
     }
   },
-}
-`
+}`
 
 
 ## Other Feedback payloads (TODO)
