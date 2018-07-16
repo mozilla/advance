@@ -75,7 +75,7 @@
 /* harmony export (immutable) */ __webpack_exports__["j"] = getActiveTabById;
 /* harmony export (immutable) */ __webpack_exports__["k"] = getActiveTabs;
 /* harmony export (immutable) */ __webpack_exports__["m"] = normalizedURL;
-const IS_PROD = false;
+const IS_PROD = true;
 /* harmony export (immutable) */ __webpack_exports__["g"] = IS_PROD;
 
 
@@ -302,6 +302,10 @@ function initIframe(path) {
   iframePath = path;
   Object(__WEBPACK_IMPORTED_MODULE_0__common_js__["l" /* getCurrentTab */])().then(currentTab => {
     browser.runtime.sendMessage({ method: 'iframeActive', windowId: currentTab.windowId, url: currentTab.url, uiElement: iframePath });
+    // ping the background every second
+    setInterval(()=> {
+      browser.runtime.sendMessage({ method: 'iframeAlive', windowId: currentTab.windowId });
+    }, 1000);
   });
   window.addEventListener('message', receiveMessage, false);
 }

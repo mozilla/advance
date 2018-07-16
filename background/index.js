@@ -74,7 +74,7 @@
 /* harmony export (immutable) */ __webpack_exports__["j"] = getActiveTabById;
 /* harmony export (immutable) */ __webpack_exports__["k"] = getActiveTabs;
 /* harmony export (immutable) */ __webpack_exports__["m"] = normalizedURL;
-const IS_PROD = false;
+const IS_PROD = true;
 /* harmony export (immutable) */ __webpack_exports__["g"] = IS_PROD;
 
 
@@ -895,6 +895,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+var openedSidebarWindows = new Map();
+
 /*
 Update content when a new tab becomes active.
 */
@@ -921,16 +923,23 @@ window.onload = fetchTokenAndUserId;
 
 function onMessage(message) {
   if (message.method == 'iframeActive') {
+    Object(__WEBPACK_IMPORTED_MODULE_0__common__["h" /* Log */])(`iframe action windowId: ${message.windowId}`)
     if (message.uiElement == '/toolbar' && Object(__WEBPACK_IMPORTED_MODULE_0__common__["m" /* normalizedURL */])(message.url) == __WEBPACK_IMPORTED_MODULE_0__common__["f" /* FORYOU_FEED_URL */]) {
       lastForYouBadgeClickSeconds = Date.now() / 1000;
     }
     relatedChanged(message.windowId, message.url, true);
     Promise.resolve(__WEBPACK_IMPORTED_MODULE_1__feed__["a" /* default */].get(__WEBPACK_IMPORTED_MODULE_0__common__["f" /* FORYOU_FEED_URL */])).then(feed => feed.broadcast());
     Object(__WEBPACK_IMPORTED_MODULE_3__logging__["a" /* logOpenView */])(message.uiElement, message.url);
+
+    addSideBarToWindowId(message.windowId);
+    Object(__WEBPACK_IMPORTED_MODULE_3__logging__["c" /* logSideBarAction */])('open');
+  }
+  else if (message.method == 'iframeAlive') {
+    addSideBarToWindowId(message.windowId);
   }
   else if (message.method == 'read') {
     const url = message.card.orig_url || message.card.url;
-    __WEBPACK_IMPORTED_MODULE_3__logging__["c" /* readCache */].set(url, {
+    __WEBPACK_IMPORTED_MODULE_3__logging__["d" /* readCache */].set(url, {
       url: message.url,
       card: message.card,
       uiElement: message.uiElement,
@@ -1252,7 +1261,7 @@ function tryLogin(count = 0) {
       authTokenChanged();
     }, 100);
 
-    Object(__WEBPACK_IMPORTED_MODULE_3__logging__["d" /* uploadHistory */])();
+    Object(__WEBPACK_IMPORTED_MODULE_3__logging__["e" /* uploadHistory */])();
   }
 
   const failure = (status, error) => {
@@ -1336,6 +1345,28 @@ browser.menus.onShown.addListener(() => {
   browser.menus.update(searchLaserlikeId, { title: title });
   browser.menus.refresh();
 });
+
+browser.browserAction.onClicked.addListener(({windowId}) => {
+  Object(__WEBPACK_IMPORTED_MODULE_0__common__["h" /* Log */])(`browser action onClick window id: ${windowId}`);
+  if (openedSidebarWindows.has(windowId)) {
+    openedSidebarWindows.delete(windowId);
+    browser.sidebarAction.close();
+  } else {
+    browser.sidebarAction.open();
+  }
+});
+
+function addSideBarToWindowId(windowId) {
+  openedSidebarWindows.set(windowId, Date.now());
+  setTimeout(()=> {
+    let t = openedSidebarWindows.get(windowId);
+    if (t && Date.now() - t > 1000) {
+      Object(__WEBPACK_IMPORTED_MODULE_0__common__["h" /* Log */])(`sidebar in ${windowId} is closed`);
+      openedSidebarWindows.delete(windowId);
+      Object(__WEBPACK_IMPORTED_MODULE_3__logging__["c" /* logSideBarAction */])('close');
+    }
+  }, 1100);
+}
 
 
 /***/ }),
@@ -3013,9 +3044,10 @@ const networkRequest = new NetworkRequest();
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["d"] = uploadHistory;
+/* harmony export (immutable) */ __webpack_exports__["e"] = uploadHistory;
 /* harmony export (immutable) */ __webpack_exports__["a"] = logOpenView;
 /* harmony export (immutable) */ __webpack_exports__["b"] = logRead;
+/* harmony export (immutable) */ __webpack_exports__["c"] = logSideBarAction;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lru_cache__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lru_cache___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lru_cache__);
@@ -3034,7 +3066,7 @@ const readCache = __WEBPACK_IMPORTED_MODULE_1_lru_cache___default()({
   max: 1000 * 1000, // 1MB
   length: (value, key) => value.length + key.length,
 });
-/* harmony export (immutable) */ __webpack_exports__["c"] = readCache;
+/* harmony export (immutable) */ __webpack_exports__["d"] = readCache;
 
 
 /*
@@ -3151,6 +3183,15 @@ function logReadEnd(url, startTime) {
     'deviceTimeUnixMicros': now * 1000,
     'deviceDurationMicros': (now - startTime) * 1000,
     'read': readData(url),
+  };
+  sendLog([entry]);
+}
+
+function logSideBarAction(action) {
+  const now = Date.now();
+  const entry = {
+    'deviceTimeUnixMicros': now * 1000,
+    'sidebarAction': action,
   };
   sendLog([entry]);
 }

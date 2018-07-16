@@ -13,8 +13,7 @@
   "browser_action": {
     "default_icon": "icons/laserlike_ff_icon.png",
     "browser_style": true,
-    "default_title": "Laserlike",
-    "default_popup": "toolbar/toolbar.html"
+    "default_title": "Laserlike Read Next"
   },
   "sidebar_action": {
     "default_icon": "icons/laserlike_ff_icon.png",
@@ -35,5 +34,5 @@
     "tabs",
     "menus"
   ],
-  "version": "0.9.22"
+  "version": "0.9.24"
 }
