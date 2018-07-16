@@ -923,16 +923,15 @@ window.onload = fetchTokenAndUserId;
 
 function onMessage(message) {
   if (message.method == 'iframeActive') {
-    Object(__WEBPACK_IMPORTED_MODULE_0__common__["h" /* Log */])(`iframe action windowId: ${message.windowId}`)
+    Object(__WEBPACK_IMPORTED_MODULE_0__common__["h" /* Log */])(`iframe action windowId: ${message.windowId} ${message.uiElement}`);
     if (message.uiElement == '/toolbar' && Object(__WEBPACK_IMPORTED_MODULE_0__common__["m" /* normalizedURL */])(message.url) == __WEBPACK_IMPORTED_MODULE_0__common__["f" /* FORYOU_FEED_URL */]) {
       lastForYouBadgeClickSeconds = Date.now() / 1000;
     }
     relatedChanged(message.windowId, message.url, true);
     Promise.resolve(__WEBPACK_IMPORTED_MODULE_1__feed__["a" /* default */].get(__WEBPACK_IMPORTED_MODULE_0__common__["f" /* FORYOU_FEED_URL */])).then(feed => feed.broadcast());
-    Object(__WEBPACK_IMPORTED_MODULE_3__logging__["a" /* logOpenView */])(message.uiElement, message.url);
+    Object(__WEBPACK_IMPORTED_MODULE_3__logging__["b" /* logOpenView */])(message.uiElement, message.url);
 
     addSideBarToWindowId(message.windowId);
-    Object(__WEBPACK_IMPORTED_MODULE_3__logging__["c" /* logSideBarAction */])('open');
   }
   else if (message.method == 'iframeAlive') {
     addSideBarToWindowId(message.windowId);
@@ -1024,7 +1023,7 @@ function relatedChanged(windowId, url, force = false) {
 
   __WEBPACK_IMPORTED_MODULE_0__common__["n" /* state */].activeTabs[windowId] = { tabId: existing.tabId, url: nurl };
 
-  Object(__WEBPACK_IMPORTED_MODULE_3__logging__["b" /* logRead */])(url);
+  Object(__WEBPACK_IMPORTED_MODULE_3__logging__["c" /* logRead */])(url);
   Object(__WEBPACK_IMPORTED_MODULE_0__common__["h" /* Log */])(`BG$ fetch related feed in window ${windowId} to: ${url}`);
   let feedOrPromise = __WEBPACK_IMPORTED_MODULE_1__feed__["a" /* default */].get(nurl);
   if (Promise.resolve(feedOrPromise) != feedOrPromise) {
@@ -1349,8 +1348,9 @@ browser.menus.onShown.addListener(() => {
 browser.browserAction.onClicked.addListener(({windowId}) => {
   Object(__WEBPACK_IMPORTED_MODULE_0__common__["h" /* Log */])(`browser action onClick window id: ${windowId}`);
   if (openedSidebarWindows.has(windowId)) {
-    openedSidebarWindows.delete(windowId);
     browser.sidebarAction.close();
+    openedSidebarWindows.delete(windowId);
+    Object(__WEBPACK_IMPORTED_MODULE_3__logging__["a" /* logCloseView */])('/sidebar');
   } else {
     browser.sidebarAction.open();
   }
@@ -1363,7 +1363,7 @@ function addSideBarToWindowId(windowId) {
     if (t && Date.now() - t > 1000) {
       Object(__WEBPACK_IMPORTED_MODULE_0__common__["h" /* Log */])(`sidebar in ${windowId} is closed`);
       openedSidebarWindows.delete(windowId);
-      Object(__WEBPACK_IMPORTED_MODULE_3__logging__["c" /* logSideBarAction */])('close');
+      Object(__WEBPACK_IMPORTED_MODULE_3__logging__["a" /* logCloseView */])('/sidebar');
     }
   }, 1100);
 }
@@ -3045,9 +3045,9 @@ const networkRequest = new NetworkRequest();
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["e"] = uploadHistory;
-/* harmony export (immutable) */ __webpack_exports__["a"] = logOpenView;
-/* harmony export (immutable) */ __webpack_exports__["b"] = logRead;
-/* harmony export (immutable) */ __webpack_exports__["c"] = logSideBarAction;
+/* harmony export (immutable) */ __webpack_exports__["b"] = logOpenView;
+/* harmony export (immutable) */ __webpack_exports__["a"] = logCloseView;
+/* harmony export (immutable) */ __webpack_exports__["c"] = logRead;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lru_cache__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lru_cache___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lru_cache__);
@@ -3122,6 +3122,19 @@ function logOpenView(view, url) {
       'name': view,
       'url': url,
     },
+    'eventType': 'start',
+  };
+  sendLog([entry]);
+}
+
+function logCloseView(view) {
+  const now = Date.now();
+  const entry = {
+    'deviceTimeUnixMicros': now * 1000,
+    'openView': {
+      'name': view,
+    },
+    'eventType': 'end',
   };
   sendLog([entry]);
 }
@@ -3183,15 +3196,6 @@ function logReadEnd(url, startTime) {
     'deviceTimeUnixMicros': now * 1000,
     'deviceDurationMicros': (now - startTime) * 1000,
     'read': readData(url),
-  };
-  sendLog([entry]);
-}
-
-function logSideBarAction(action) {
-  const now = Date.now();
-  const entry = {
-    'deviceTimeUnixMicros': now * 1000,
-    'sidebarAction': action,
   };
   sendLog([entry]);
 }
