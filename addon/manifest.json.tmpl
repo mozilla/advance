@@ -1,10 +1,16 @@
 {
+  "manifest_version": 2,
   "applications": {
     "gecko": {
       "strict_min_version": "54.0a1",
       "id": "support@laserlike.com"
     }
   },
+  "name": "{{name}}",
+  "version": "{{version}}",
+  "description": "{{description}}",
+  "author": "{{{author}}}",
+  "homepage_url": "{{{homepage}}}",
   "background": {
     "scripts": [
       "background/index.js"
@@ -20,10 +26,6 @@
     "default_title": "Laserlike",
     "default_panel": "sidebar/panel.html"
   },
-  "description": "Shows related articles to the active page and For you feed based on your browsing history.",
-  "homepage_url": "https://www.laserlike.com",
-  "manifest_version": 2,
-  "name": "Laserlike",
   "permissions": [
     "storage",
     "activeTab",
@@ -32,6 +34,5 @@
     "cookies",
     "tabs",
     "menus"
-  ],
-  "version": "0.9.26"
+  ]
 }

@@ -1,0 +1,44 @@
+{
+  "name": "Laserlike",
+  "description": "Shows related articles to the active page and For you feed based on your browsing history.",
+  "version": "0.9.32",
+  "author": "Laserlike Inc. (https://www.laserlike.com/)",
+  "bugs": {
+    "url": "https://github.com/LaserlikeInc/firefox-addon/issues"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "addons-linter": "^0.37.0",
+    "eslint": "^4.16.0",
+    "eslint-plugin-mozilla": "^0.6.0",
+    "eslint-plugin-no-unsanitized": "^2.0.2",
+    "mustache": "^2.3.0",
+    "npm-run-all": "^4.1.2",
+    "stylelint": "^9.1.1",
+    "stylelint-config-standard": "^18.2.0",
+    "testpilot-ga": "^0.3.0",
+    "web-ext": "^2.4.0"
+  },
+  "homepage": "https://github.com/LaserlikeInc/firefox-addon/",
+  "license": "MPL-2.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LaserlikeInc/firefox-addon.git"
+  },
+  "scripts": {
+    "start": "npm-run-all build run",
+    "lint": "npm-run-all lint:*",
+    "lint:addon": "npm run package && addons-linter ./addon.xpi -o text --self-hosted",
+    "lint:js": "eslint .",
+    "lint:styles": "stylelint ./addon/*.css",
+    "build": "npm-run-all build:*",
+    "build:ga": "mkdir -p addon/build && cp $(node -e 'console.log(require.resolve(\"testpilot-ga\"))') addon/build/testpilot-ga.js",
+    "build:manifest": "node -e 'let input = JSON.parse(fs.readFileSync(\"package.json\")); input.version = input.version.slice(0, -1) + Math.floor((Date.now() - new Date(new Date().getFullYear().toString()).getTime()) / 3600000); console.log(JSON.stringify(input))' | mustache - addon/manifest.json.tmpl > addon/manifest.json",
+    "build:buildSettings": "node -e 'console.log(JSON.stringify(process.env))' | mustache - addon/buildSettings.js.tmpl > addon/build/buildSettings.js",
+    "build:web-ext": "web-ext build --source-dir=addon --overwrite-dest --ignore-files '*.tmpl' && zip -r web-ext-artifacts/`ls -t1 web-ext-artifacts | head -n 1` addon",
+    "package": "npm run build && cp web-ext-artifacts/`ls -t1 web-ext-artifacts | head -n 1` addon.xpi",
+    "run": "mkdir -p ./Profile && web-ext run --source-dir=addon -p ./Profile --browser-console --keep-profile-changes -f nightly",
+    "test": "npm run lint"
+  }
+}
