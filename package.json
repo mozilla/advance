@@ -1,7 +1,7 @@
 {
   "name": "Advance",
   "description": "Shows related articles to the active page and For you feed based on your browsing history.",
-  "version": "0.9.37",
+  "version": "0.9.40",
   "author": "Laserlike Inc. (https://www.laserlike.com/)",
   "bugs": {
     "url": "https://github.com/LaserlikeInc/firefox-addon/issues"
