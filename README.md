@@ -1,3 +1,7 @@
+NB: This is the archived source code from the [Advance](https://testpilot.firefox.com/experiments/advance) experiment in [Test Pilot](https://testpilot.firefox.com/). It originally lived at [`LaserlinkInc/firefox-addon`](https://github.com/LaserlikeInc/firefox-addon/).
+
+---
+
 # Laserlike
 
 ** A firefox toolbar add-on
